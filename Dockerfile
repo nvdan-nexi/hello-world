@@ -4,7 +4,12 @@ WORKDIR project/
 
 # Install Build Essentials
 RUN apt-get update \
-    && apt-get install build-essential -y
+    && apt-get install build-essential -y \
+    && apt-get install -y libc6-amd64-cross libstdc++6-amd64-cross libgcc1-amd64-cross
+
+RUN ln -s /usr/x86_64-linux-gnu/lib64/ /lib64
+
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/lib64:/usr/x86_64-linux-gnu/lib"
 
 # Set Environment Variables
 ENV SDK_URL="https://dl.google.com/android/android-sdk_r24.4.1-linux.tgz" \
