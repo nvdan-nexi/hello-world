@@ -2,7 +2,11 @@ pipeline {
     agent { dockerfile true }
 
     parameters {
-        string(name: 'BUILD_VARIANT', defaultValue:'Debug', description: 'Build variant type')
+        choice(
+            name: 'BUILD',
+            choices: ['Debug', 'Release'],
+            description: 'Build variant type'
+        )
     }
 
     stages {
@@ -20,9 +24,9 @@ pipeline {
         }
         stage('Build Source Code') {
             steps {
-                echo 'Build Source Code as ${BUILD_VARIANT}'
+                echo 'Build Source Code as '+ params.BUILD
                 script {
-                    switch(params.BUILD_VARIANT) {
+                    switch(params.BUILD) {
                         case "Debug": sh "./gradlew assembleDebug"; break
                         case "Release": sh "./gradlew assembleRelease"; break
                     }
