@@ -13,16 +13,11 @@ pool:
 #    - PiaSDK-Variables-Release
 
 trigger:
-  branches:
-    include:
-      - master
-    exclude:
-      - "*"
+  - master
 
 pr:
   branches:
     include:
-      - master
       - develop
       - feature-*
       - bugfix-*
