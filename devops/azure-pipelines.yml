@@ -12,7 +12,12 @@ pool:
 #    - PiaSDK-Variables-Hotfix
 #    - PiaSDK-Variables-Release
 
-trigger: none
+trigger:
+  branches:
+    include:
+      - master
+    exclude:
+      - '*'
 
 pr:
   branches:
@@ -38,53 +43,53 @@ variables:
 steps:
 - script: |
     echo "Build Environment"
-    ./devops/execute.sh build
-    ./devops/execute.sh run
+#    ./devops/execute.sh build
+#    ./devops/execute.sh run
   displayName: 'Build Environment'
 
-- script: |
-    echo "Cleaning cache and build"
-    ./devops/execute.sh command clean
-  displayName: 'Pre-setup'
-
-- script: |
-    echo "Running Tests"
-    ./devops/execute.sh command test
-  displayName: 'Run Tests'
-
-- script: |
-    echo "Build Source Code as $(buildConfiguration)"
-    ./devops/execute.sh command assembleRelease
-  condition: and(succeeded(), eq(variables.buildConfiguration, 'release'))
-  displayName: 'Build Source Code'
-
-- script: |
-    echo "Build Source Code as $(buildConfiguration)"
-    ./devops/execute.sh command assembleDebug
-  condition: and(succeeded(), eq(variables.buildConfiguration, 'debug'))
-  displayName: 'Build Source Code'
-
-
-- script: |
-    echo "Extract Build"
-    ./devops/execute.sh extract
-  displayName: 'Extract Build'
-
-
-- script: |
-    echo "Removing used resources"
-    ./devops/execute.sh remove
-  displayName: 'Cleanup'
-
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: '$(system.defaultworkingdirectory)'
-    Contents: '**/*.apk'
-    TargetFolder: '$(build.artifactstagingdirectory)'
-  displayName: 'Copy File to : $(build.artifactstagingdirectory)'
-
-
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'
-  displayName: 'Publish to Artifact'
+#- script: |
+#    echo "Cleaning cache and build"
+#    ./devops/execute.sh command clean
+#  displayName: 'Pre-setup'
+#
+#- script: |
+#    echo "Running Tests"
+#    ./devops/execute.sh command test
+#  displayName: 'Run Tests'
+#
+#- script: |
+#    echo "Build Source Code as $(buildConfiguration)"
+#    ./devops/execute.sh command assembleRelease
+#  condition: and(succeeded(), eq(variables.buildConfiguration, 'release'))
+#  displayName: 'Build Source Code'
+#
+#- script: |
+#    echo "Build Source Code as $(buildConfiguration)"
+#    ./devops/execute.sh command assembleDebug
+#  condition: and(succeeded(), eq(variables.buildConfiguration, 'debug'))
+#  displayName: 'Build Source Code'
+#
+#
+#- script: |
+#    echo "Extract Build"
+#    ./devops/execute.sh extract
+#  displayName: 'Extract Build'
+#
+#
+#- script: |
+#    echo "Removing used resources"
+#    ./devops/execute.sh remove
+#  displayName: 'Cleanup'
+#
+#- task: CopyFiles@2
+#  inputs:
+#    SourceFolder: '$(system.defaultworkingdirectory)'
+#    Contents: '**/*.apk'
+#    TargetFolder: '$(build.artifactstagingdirectory)'
+#  displayName: 'Copy File to : $(build.artifactstagingdirectory)'
+#
+#
+#- task: PublishBuildArtifacts@1
+#  inputs:
+#    PathtoPublish: '$(build.artifactstagingdirectory)'
+#  displayName: 'Publish to Artifact'
