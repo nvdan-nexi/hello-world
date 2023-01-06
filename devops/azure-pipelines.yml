@@ -17,16 +17,16 @@ trigger:
     include:
       - master
     exclude:
-      - '*'
+      - "*"
 
 pr:
   branches:
     include:
       - master
+      - develop
       - feature-*
       - bugfix-*
       - hotfix-*
-      - develop-*
 #    exclude:
 #      - features/experimental/*
 
