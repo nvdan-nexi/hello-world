@@ -1,71 +1,91 @@
 pool:
   vmImage: ubuntu-latest
 
-parameters:
-  - name: environment
-    displayName: PiaSDK-Environment
-    type: string
-    default: PiaSDK-Variables-Debug
-    values:
-    - PiaSDK-Variables-Debug
-    - PiaSDK-Variables-Release
+#parameters:
+#  - name: environment
+#    displayName: PiaSDK-Environment
+#    type: string
+#    default: PiaSDK-Variables-Debug
+#    values:
+#    - PiaSDK-Variables-Debug
+#    - PiaSDK-Variables-Bugfix
+#    - PiaSDK-Variables-Hotfix
+#    - PiaSDK-Variables-Release
+
+pr:
+  branches:
+    include:
+      - master
+      - feature-*
+      - bugfix-*
+      - hotfix-*
+      - develop-*
+#    exclude:
+#      - features/experimental/*
+  paths:
+    exclude:
+      - README.md
 
 variables:
-  - group: ${{parameters.environment}}
-
-trigger:
-  - azure-devops
+  - ${{ if eq( variables['Build.SourceBranchName'], 'master' ) }}:
+      - group: PiaSDK-Variables-Release
+  - ${{ if eq( variables['Build.SourceBranchName'], 'develop' ) }}:
+      - group: PiaSDK-Variables-Debug
+  - ${{ if contains( variables['Build.SourceBranchName'], 'feature' ) }}:
+      - group: PiaSDK-Variables-hotfix
+  - ${{ if contains( variables['Build.SourceBranchName'], 'bugfix' ) }}:
+      - group: PiaSDK-Variables-bugfix
 
 steps:
 - script: |
-    echo "Build Environment"
-    ./devops/execute.sh build
-    ./devops/execute.sh run
+    echo "Build Environment $(buildConfiguration) $(Build.SourceBranch)"
+#    ./devops/execute.sh build
+#    ./devops/execute.sh run
   displayName: 'Build Environment'
 
-- script: |
-    echo "Cleaning cache and build"
-    ./devops/execute.sh command clean
-  displayName: 'Pre-setup'
-
-- script: |
-    echo "Running Tests"
-    ./devops/execute.sh command test
-  displayName: 'Run Tests'
-
-- script: |
-    echo "Build Source Code as $(buildConfiguration)"
-    ./devops/execute.sh command assembleRelease
-  condition: and(succeeded(), eq(variables.buildConfiguration, 'release'))
-  displayName: 'Build Source Code'
-
-- script: |
-    echo "Build Source Code as $(buildConfiguration)"
-    ./devops/execute.sh command assembleDebug
-  condition: and(succeeded(), eq(variables.buildConfiguration, 'debug'))
-  displayName: 'Build Source Code'
-
-
-- script: |
-    echo "Extract Build"
-    ./devops/execute.sh extract
-  displayName: 'Extract Build'
-
-
-- script: |
-    echo "Removing used resources"
-    ./devops/execute.sh remove
-  displayName: 'Cleanup'
-
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: '$(system.defaultworkingdirectory)'
-    Contents: '**/*.apk'
-    TargetFolder: '$(build.artifactstagingdirectory)'
-  displayName: 'Copy File to : $(build.artifactstagingdirectory)'
-
-
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(build.artifactstagingdirectory)'
-  displayName: 'Publish to Artifact'
+#- script: |
+#    echo "Cleaning cache and build"
+#    ./devops/execute.sh command clean
+#  displayName: 'Pre-setup'
+#
+#- script: |
+#    echo "Running Tests"
+#    ./devops/execute.sh command test
+#  displayName: 'Run Tests'
+#
+#- script: |
+#    echo "Build Source Code as $(buildConfiguration)"
+#    ./devops/execute.sh command assembleRelease
+#  condition: and(succeeded(), eq(variables.buildConfiguration, 'release'))
+#  displayName: 'Build Source Code'
+#
+#- script: |
+#    echo "Build Source Code as $(buildConfiguration)"
+#    ./devops/execute.sh command assembleDebug
+#  condition: and(succeeded(), eq(variables.buildConfiguration, 'debug'))
+#  displayName: 'Build Source Code'
+#
+#
+#- script: |
+#    echo "Extract Build"
+#    ./devops/execute.sh extract
+#  displayName: 'Extract Build'
+#
+#
+#- script: |
+#    echo "Removing used resources"
+#    ./devops/execute.sh remove
+#  displayName: 'Cleanup'
+#
+#- task: CopyFiles@2
+#  inputs:
+#    SourceFolder: '$(system.defaultworkingdirectory)'
+#    Contents: '**/*.apk'
+#    TargetFolder: '$(build.artifactstagingdirectory)'
+#  displayName: 'Copy File to : $(build.artifactstagingdirectory)'
+#
+#
+#- task: PublishBuildArtifacts@1
+#  inputs:
+#    PathtoPublish: '$(build.artifactstagingdirectory)'
+#  displayName: 'Publish to Artifact'
