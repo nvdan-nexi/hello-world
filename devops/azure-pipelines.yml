@@ -12,13 +12,10 @@ pool:
 #    - PiaSDK-Variables-Hotfix
 #    - PiaSDK-Variables-Release
 
-trigger:
-  branches:
-    include:
-      - master
-    exclude:
-      - "*"
-
+#trigger:
+#  branches:
+#    include:
+#    - master
 pr:
   branches:
     include:
@@ -27,8 +24,8 @@ pr:
       - feature-*
       - bugfix-*
       - hotfix-*
-#    exclude:
-#      - features/experimental/*
+    exclude:
+      - '*'
 
 variables:
   - ${{ if eq( variables['Build.SourceBranchName'], 'master' ) }}:
