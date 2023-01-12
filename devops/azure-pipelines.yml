@@ -13,15 +13,8 @@ pool:
 #    - PiaSDK-Variables-Release
 
 trigger:
-  branches:
-    include:
-      - master
-  paths:
-    include:
-      - README.md
-  pr:
-    include:
-      - all
+  - refs/pull/*/head
+  - refs/pull/*/merge
 
 pr:
   branches:
