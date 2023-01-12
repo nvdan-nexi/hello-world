@@ -16,8 +16,12 @@ trigger:
   branches:
     include:
       - master
-    exclude:
-      - "*"
+  paths:
+    include:
+      - README.md
+  pullRequest:
+    include:
+      - all
 
 pr:
   branches:
@@ -27,8 +31,6 @@ pr:
       - feature-*
       - bugfix-*
       - hotfix-*
-#    exclude:
-#      - features/experimental/*
 
 variables:
   - ${{ if eq( variables['Build.SourceBranchName'], 'master' ) }}:
