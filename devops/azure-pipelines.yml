@@ -19,7 +19,7 @@ trigger:
   paths:
     include:
       - README.md
-  pullRequest:
+  pr:
     include:
       - all
 
