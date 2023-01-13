@@ -14,7 +14,7 @@ pool:
 
 trigger:
   - refs/pull/*/head
-  - refs/pull/*/merge
+  - master
 
 pr:
   branches:
