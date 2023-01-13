@@ -15,6 +15,8 @@ pool:
 trigger:
   - refs/pull/*/head
   - master
+  - develop
+  - azure-develop # remove once sample works
 
 pr:
   branches:
