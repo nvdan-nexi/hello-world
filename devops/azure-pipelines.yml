@@ -37,10 +37,12 @@ variables:
       - group: PiaSDK-Variables-hotfix
   - ${{ if contains( variables['Build.SourceBranchName'], 'bugfix' ) }}:
       - group: PiaSDK-Variables-bugfix
+  - name: CurrentBranchName
+    value: $(System.PullRequest.SourceBranch)
 
 steps:
 - script: |
-    echo "Build Environment"
+    echo "Build Environment Current Name - $(CurrentBranchName) , Source Message -  $(Build.SourceVersionMessage)"
 #    ./devops/execute.sh build
 #    ./devops/execute.sh run
   displayName: 'Build Environment'
@@ -91,3 +93,8 @@ steps:
 #  inputs:
 #    PathtoPublish: '$(build.artifactstagingdirectory)'
 #  displayName: 'Publish to Artifact'
+
+- script: |
+    echo "Try to trigger test automation pipeline $(variables.branchName)"
+  condition: and(succeeded(), contains(variables.branchName, 'feature'))
+  displayName: 'Trigger Automation testing'
