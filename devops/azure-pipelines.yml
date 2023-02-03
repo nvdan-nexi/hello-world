@@ -12,6 +12,20 @@ pool:
 #    - PiaSDK-Variables-Hotfix
 #    - PiaSDK-Variables-Release
 
+variables:
+  - name: CurrentBranchName
+    value: $(System.PullRequest.SourceBranch)
+  - ${{ if eq( variables['Build.SourceBranchName'], 'master' ) }}:
+      - group: PiaSDK-Variables-Release
+  - ${{ if eq( variables['Build.SourceBranchName'], 'develop' ) }}:
+      - group: PiaSDK-Variables-Debug
+  - ${{ if contains(variables['Build.SourceBranchName'], 'feature' )}}:
+      - group: PiaSDK-Variables-hotfix
+  - ${{ if contains(variables['Build.SourceBranchName'], 'bugfix' )}}:
+      - group: PiaSDK-Variables-bugfix
+  - ${{ else }}:
+      - group: PiaSDK-Variables-Debug
+
 trigger:
   - refs/pull/*/head
   - master
@@ -28,21 +42,9 @@ pr:
       - bugfix-*
       - hotfix-*
 
-variables:
-  - ${{ if eq( variables['Build.SourceBranchName'], 'master' ) }}:
-      - group: PiaSDK-Variables-Release
-  - ${{ if eq( variables['Build.SourceBranchName'], 'develop' ) }}:
-      - group: PiaSDK-Variables-Debug
-  - ${{ if contains( variables['Build.SourceBranchName'], 'feature' ) }}:
-      - group: PiaSDK-Variables-hotfix
-  - ${{ if contains( variables['Build.SourceBranchName'], 'bugfix' ) }}:
-      - group: PiaSDK-Variables-bugfix
-  - name: CurrentBranchName
-    value: $(System.PullRequest.SourceBranch)
-
 steps:
 - script: |
-    echo "Build Environment Current Name - $(CurrentBranchName) , Source Message -  $(Build.SourceVersionMessage)"
+    echo "Build Environment Current Name - $(CurrentBranchName) ,   buildConfiguration -  $(buildConfiguration)"
 #    ./devops/execute.sh build
 #    ./devops/execute.sh run
   displayName: 'Build Environment'
@@ -95,6 +97,6 @@ steps:
 #  displayName: 'Publish to Artifact'
 
 - script: |
-    echo "Try to trigger test automation pipeline $(variables.branchName)"
-  condition: and(succeeded(), contains(variables.branchName, 'feature'))
+    echo "Try to trigger test automation pipeline $(CurrentBranchName)"
+  condition: and(succeeded(), contains(variables['CurrentBranchName'], 'feature'))
   displayName: 'Trigger Automation testing'
