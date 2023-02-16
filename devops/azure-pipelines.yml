@@ -11,6 +11,17 @@ pool:
 #    - PiaSDK-Variables-Bugfix
 #    - PiaSDK-Variables-Hotfix
 #    - PiaSDK-Variables-Release
+variables:
+  - ${{ if eq( variables['Build.SourceBranchName'], 'master' ) }}:
+      - group: PiaSDK-Variables-Release
+  - ${{ if eq( variables['Build.SourceBranchName'], 'develop' ) }}:
+      - group: PiaSDK-Variables-Debug
+  - ${{ if contains(variables['Build.SourceBranchName'], 'feature' )}}:
+      - group: PiaSDK-Variables-Feature
+  - ${{ if contains(variables['Build.SourceBranch'], 'refs/pull' )}}:
+      - group: PiaSDK-Variables-Feature
+  - ${{ if contains(variables['Build.SourceBranchName'], 'bugfix' )}}:
+      - group: PiaSDK-Variables-bugfix
 
 trigger:
   - refs/pull/*/head
@@ -28,22 +39,21 @@ pr:
       - bugfix-*
       - hotfix-*
 
-variables:
-  - ${{ if eq( variables['Build.SourceBranchName'], 'master' ) }}:
-      - group: PiaSDK-Variables-Release
-  - ${{ if eq( variables['Build.SourceBranchName'], 'develop' ) }}:
-      - group: PiaSDK-Variables-Debug
-  - ${{ if contains( variables['Build.SourceBranchName'], 'feature' ) }}:
-      - group: PiaSDK-Variables-hotfix
-  - ${{ if contains( variables['Build.SourceBranchName'], 'bugfix' ) }}:
-      - group: PiaSDK-Variables-bugfix
+jobs:
+  - job: MyJob
+    condition: or(
+                eq(variables['Build.SourceBranchName'], 'master'),
+                eq(variables['Build.SourceBranchName'], 'develop'),
+                contains(variables['Build.SourceBranchName'], 'bugfix'),
+                contains(variables['System.PullRequest.SourceBranch'], 'feature'))
+    continueOnError: false
+    steps:
+    - script: |
+        echo "Build Environment Current Name - $(System.PullRequest.SourceBranch) ,   buildConfiguration -  $(buildConfiguration)"
 
-steps:
-- script: |
-    echo "Build Environment"
-#    ./devops/execute.sh build
-#    ./devops/execute.sh run
-  displayName: 'Build Environment'
+    #    ./devops/execute.sh build
+    #    ./devops/execute.sh run
+      displayName: 'Build Environment'
 
 #- script: |
 #    echo "Cleaning cache and build"
@@ -91,3 +101,8 @@ steps:
 #  inputs:
 #    PathtoPublish: '$(build.artifactstagingdirectory)'
 #  displayName: 'Publish to Artifact'
+
+    - script: |
+        echo "Try to trigger test automation pipeline $(System.PullRequest.SourceBranch)"
+      condition: and(succeeded(), contains(variables['System.PullRequest.SourceBranch'], 'feature'))
+      displayName: 'Trigger Automation testing'
