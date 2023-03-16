@@ -11,20 +11,17 @@ pool:
 #    - PiaSDK-Variables-Bugfix
 #    - PiaSDK-Variables-Hotfix
 #    - PiaSDK-Variables-Release
-
 variables:
-  - name: CurrentBranchName
-    value: $(System.PullRequest.SourceBranch)
   - ${{ if eq( variables['Build.SourceBranchName'], 'master' ) }}:
       - group: PiaSDK-Variables-Release
   - ${{ if eq( variables['Build.SourceBranchName'], 'develop' ) }}:
       - group: PiaSDK-Variables-Debug
   - ${{ if contains(variables['Build.SourceBranchName'], 'feature' )}}:
-      - group: PiaSDK-Variables-hotfix
+      - group: PiaSDK-Variables-Feature
+  - ${{ if contains(variables['Build.SourceBranch'], 'refs/pull' )}}:
+      - group: PiaSDK-Variables-Feature
   - ${{ if contains(variables['Build.SourceBranchName'], 'bugfix' )}}:
       - group: PiaSDK-Variables-bugfix
-  - ${{ else }}:
-      - group: PiaSDK-Variables-Debug
 
 trigger:
   - refs/pull/*/head
@@ -42,12 +39,21 @@ pr:
       - bugfix-*
       - hotfix-*
 
-steps:
-- script: |
-    echo "Build Environment Current Name - $(CurrentBranchName) ,   buildConfiguration -  $(buildConfiguration)"
-#    ./devops/execute.sh build
-#    ./devops/execute.sh run
-  displayName: 'Build Environment'
+jobs:
+  - job: MyJob
+    condition: or(
+                eq(variables['Build.SourceBranchName'], 'master'),
+                eq(variables['Build.SourceBranchName'], 'develop'),
+                contains(variables['Build.SourceBranchName'], 'bugfix'),
+                contains(variables['System.PullRequest.SourceBranch'], 'feature'))
+    continueOnError: false
+    steps:
+    - script: |
+        echo "Build Environment Current Name --- $(System.PullRequest.SourceBranch) ,   buildConfiguration -  $(buildConfiguration)"
+
+    #    ./devops/execute.sh build
+    #    ./devops/execute.sh run
+      displayName: 'Build Environment'
 
 #- script: |
 #    echo "Cleaning cache and build"
@@ -96,7 +102,7 @@ steps:
 #    PathtoPublish: '$(build.artifactstagingdirectory)'
 #  displayName: 'Publish to Artifact'
 
-- script: |
-    echo "Try to trigger test automation pipeline $(CurrentBranchName)"
-  condition: and(succeeded(), contains(variables['CurrentBranchName'], 'feature'))
-  displayName: 'Trigger Automation testing'
+    - script: |
+        echo "Try to trigger test automation pipeline $(System.PullRequest.SourceBranch)"
+      condition: and(succeeded(), contains(variables['System.PullRequest.SourceBranch'], 'feature'))
+      displayName: 'Trigger Automation testing'
