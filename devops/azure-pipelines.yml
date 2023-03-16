@@ -49,8 +49,7 @@ jobs:
     continueOnError: false
     steps:
     - script: |
-        echo "Build Environment Current Name - $(System.PullRequest.SourceBranch) ,   buildConfiguration -  $(buildConfiguration)"
-
+        echo "Build Environment Current Name --- $(System.PullRequest.SourceBranch) ,   buildConfiguration -  $(buildConfiguration)"
     #    ./devops/execute.sh build
     #    ./devops/execute.sh run
       displayName: 'Build Environment'
